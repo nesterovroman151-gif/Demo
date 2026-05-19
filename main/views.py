@@ -2,10 +2,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import User, Application
+from django.core.paginator import Paginator
+from .models import User, Application, Course
 from .forms import (
     RegistrationForm, LoginForm, ApplicationForm, ReviewForm
 )
+
+
+def landing_view(request):
+    if request.user.is_authenticated:
+        return redirect('profile')
+    courses = Course.objects.all()[:3]
+    return render(request, 'main/landing.html', {'courses': courses})
 
 
 def register_view(request):
@@ -54,8 +62,7 @@ def logout_view(request):
 def profile_view(request):
     if request.user.username == 'Admin26':
         return redirect('admin_panel')
-    applications = request.user.applications.all()
-    review_form = ReviewForm()
+    applications = request.user.applications.select_related('course', 'review').all()
     can_review = applications.filter(status='completed').exclude(
         review__isnull=False
     ).exists()
@@ -77,7 +84,6 @@ def profile_view(request):
 
     return render(request, 'main/profile.html', {
         'applications': applications,
-        'review_form': review_form,
         'can_review': can_review,
     })
 
@@ -103,7 +109,7 @@ def admin_panel_view(request):
 
     status_filter = request.GET.get('status', '')
     sort_by = request.GET.get('sort', '-created_at')
-    applications = Application.objects.all()
+    applications = Application.objects.select_related('user', 'course').all()
 
     if status_filter:
         applications = applications.filter(status=status_filter)
@@ -111,15 +117,12 @@ def admin_panel_view(request):
     valid_sorts = {
         'created_at': 'created_at',
         '-created_at': '-created_at',
-        'status': 'status',
-        '-status': '-status',
         'user': 'user__username',
         '-user': '-user__username',
     }
     sort = valid_sorts.get(sort_by, '-created_at')
     applications = applications.order_by(sort)
 
-    from django.core.paginator import Paginator
     paginator = Paginator(applications, 5)
     page = request.GET.get('page', 1)
     page_obj = paginator.get_page(page)

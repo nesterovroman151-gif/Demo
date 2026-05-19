@@ -25,6 +25,9 @@ class Course(models.Model):
     class Meta:
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
+        indexes = [
+            models.Index(fields=['course_type']),
+        ]
 
     def __str__(self):
         return self.name
@@ -64,6 +67,12 @@ class Application(models.Model):
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['user']),
+            models.Index(fields=['-created_at', 'status']),
+        ]
 
     def __str__(self):
         return f'{self.user.username} - {self.course.name}'
