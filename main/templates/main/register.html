@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация — Учусь.РФ{% endblock %}
+{% block content %}
+<div class="auth-page" style="margin: -32px -16px; min-height: calc(100vh - 140px);">
+    <div class="auth-card fade-in">
+        <h1>Регистрация</h1>
+        <p class="subtitle">Создайте аккаунт для записи на курсы</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <span class="error-text">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            <button type="submit" class="btn btn-primary" style="width:100%">Зарегистрироваться</button>
+        </form>
+        <div class="auth-link">
+            Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

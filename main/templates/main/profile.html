@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Личный кабинет — Учусь.РФ{% endblock %}
+{% block content %}
+<h2 style="margin-bottom:24px">Личный кабинет</h2>
+<p style="margin-bottom:24px;opacity:0.7">Добро пожаловать, {{ user.full_name }}</p>
+
+<div class="slider-section">
+    <div class="slider-track">
+        <div class="slider-slide">
+            <img src="/static/assets/i%20%281%29.webp" alt="Курсы">
+        </div>
+        <div class="slider-slide">
+            <img src="/static/assets/i%20%282%29.webp" alt="Обучение">
+        </div>
+        <div class="slider-slide">
+            <img src="/static/assets/i%20%283%29.webp" alt="Знания">
+        </div>
+        <div class="slider-slide">
+            <img src="/static/assets/i.webp" alt="Развитие">
+        </div>
+    </div>
+    <button class="slider-btn slider-prev" type="button" aria-label="Назад">&lsaquo;</button>
+    <button class="slider-btn slider-next" type="button" aria-label="Вперед">&rsaquo;</button>
+    <div class="slider-dots"></div>
+</div>
+
+<h3 style="margin-bottom:16px">Мои заявки</h3>
+
+{% if applications %}
+    {% for app in applications %}
+    <div class="application-card fade-in">
+        <div class="app-header">
+            <div>
+                <div class="app-title">{{ app.course.name }}</div>
+                <div class="app-meta">
+                    {{ app.start_date|date:"d.m.Y" }} &middot;
+                    {{ app.get_payment_method_display }}
+                </div>
+            </div>
+            <span class="status-badge status-{{ app.status }}">{{ app.get_status_display }}</span>
+        </div>
+        {% if app.review %}
+        <div class="review-box">
+            <p>{{ app.review.text }}</p>
+        </div>
+        {% elif app.status == 'completed' %}
+        <div class="app-actions">
+            <button class="btn btn-secondary btn-sm" data-modal-target="review-modal-{{ app.id }}">Оставить отзыв</button>
+        </div>
+
+        <div class="modal-overlay" id="review-modal-{{ app.id }}">
+            <div class="modal-content">
+                <h2>Оставить отзыв</h2>
+                <form method="post" action="{% url 'profile' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="application_id" value="{{ app.id }}">
+                    <div class="form-group">
+                        <label>Ваш отзыв о курсе</label>
+                        <textarea name="text" class="form-input" rows="4" placeholder="Поделитесь впечатлениями об обучении..." required></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" name="review_text" value="1" class="btn btn-primary">Отправить</button>
+                        <button type="button" class="btn btn-secondary modal-close">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <p>У вас пока нет заявок</p>
+        <a href="{% url 'apply' %}" class="btn btn-primary" style="margin-top:16px;display:inline-flex">Подать заявку</a>
+    </div>
+{% endif %}
+{% endblock %}

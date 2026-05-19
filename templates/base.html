@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Учусь.РФ{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <a href="/" class="header-logo">
+                    <img src="/static/assets/20220922_logo.jpg" alt="Учусь.РФ">
+                    Учусь.РФ
+                </a>
+                <div class="header-nav">
+                    {% if user.is_authenticated %}
+                        {% if user.username != 'Admin26' %}
+                            <a href="{% url 'profile' %}">Личный кабинет</a>
+                            <a href="{% url 'apply' %}">Новая заявка</a>
+                        {% else %}
+                            <a href="{% url 'admin_panel' %}">Панель управления</a>
+                        {% endif %}
+                        <a href="{% url 'logout' %}">Выйти</a>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <main class="content-section">
+            <div class="container">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <p>Учусь.РФ &mdash; информационная система для записи на онлайн курсы</p>
+            </div>
+        </footer>
+    </div>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

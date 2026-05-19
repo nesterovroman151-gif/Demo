@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Панель управления — Учусь.РФ{% endblock %}
+{% block content %}
+<h2 style="margin-bottom:8px">Панель управления</h2>
+<p style="margin-bottom:24px;opacity:0.7">Управление заявками пользователей</p>
+
+<div class="filters-bar">
+    <form method="get" style="display:contents">
+        <select name="status" onchange="this.form.submit()">
+            <option value="">Все статусы</option>
+            {% for key, label in status_choices %}
+                <option value="{{ key }}" {% if status_filter == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <select name="sort" onchange="this.form.submit()">
+            <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Сначала новые</option>
+            <option value="created_at" {% if current_sort == 'created_at' %}selected{% endif %}>Сначала старые</option>
+            <option value="status" {% if current_sort == 'status' %}selected{% endif %}>По статусу (А-Я)</option>
+            <option value="-status" {% if current_sort == '-status' %}selected{% endif %}>По статусу (Я-А)</option>
+            <option value="user" {% if current_sort == 'user' %}selected{% endif %}>По пользователю (А-Я)</option>
+            <option value="-user" {% if current_sort == '-user' %}selected{% endif %}>По пользователю (Я-А)</option>
+        </select>
+        {% if status_filter or current_sort != '-created_at' %}
+            <a href="{% url 'admin_panel' %}" class="btn btn-secondary btn-sm">Сбросить</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if page_obj %}
+    <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Пользователь</th>
+                        <th>Курс</th>
+                        <th>Дата старта</th>
+                        <th>Оплата</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in page_obj %}
+                    <tr>
+                        <td>{{ app.id }}</td>
+                        <td>{{ app.user.full_name }}</td>
+                        <td style="max-width:200px">{{ app.course.name }}</td>
+                        <td>{{ app.start_date|date:"d.m.Y" }}</td>
+                        <td>{{ app.get_payment_method_display }}</td>
+                        <td>
+                            <span class="status-badge status-{{ app.status }}">{{ app.get_status_display }}</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" data-modal-target="status-modal-{{ app.id }}">Изменить</button>
+                        </td>
+                    </tr>
+
+                    <div class="modal-overlay" id="status-modal-{{ app.id }}">
+                        <div class="modal-content">
+                            <h2>Изменение статуса заявки №{{ app.id }}</h2>
+                            <p style="margin-bottom:16px;opacity:0.7">
+                                {{ app.user.full_name }} &mdash; {{ app.course.name }}
+                            </p>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="application_id" value="{{ app.id }}">
+                                <div class="form-group">
+                                    <label>Новый статус</label>
+                                    <select name="new_status" class="form-input">
+                                        {% for key, label in status_choices %}
+                                            <option value="{{ key }}" {% if app.status == key %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="modal-actions">
+                                    <button type="submit" name="change_status" value="1" class="btn btn-primary">Сохранить</button>
+                                    <button type="button" class="btn btn-secondary modal-close">Отмена</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}{% if current_sort != '-created_at' %}&sort={{ current_sort }}{% endif %}">&laquo;</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if current_sort != '-created_at' %}&sort={{ current_sort }}{% endif %}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+        <span class="current">{{ page_obj.number }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if current_sort != '-created_at' %}&sort={{ current_sort }}{% endif %}">{{ page_obj.next_page_number }}</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if current_sort != '-created_at' %}&sort={{ current_sort }}{% endif %}">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+{% else %}
+    <div class="empty-state">
+        <p>Заявок пока нет</p>
+    </div>
+{% endif %}
+{% endblock %}
