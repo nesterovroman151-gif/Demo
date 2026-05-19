@@ -57,7 +57,101 @@
             </div>
         </footer>
     </div>
-    <script src="/static/js/main.js"></script>
+        <script src="/static/js/main.js"></script>
     {% block extra_js %}{% endblock %}
+
+    <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            color: #6c757d;
+            margin-bottom: 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Открытие модалки по кнопке с data-modal-target
+            document.querySelectorAll('[data-modal-target]').forEach(function(button) {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var modalId = this.getAttribute('data-modal-target');
+                    var modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            });
+
+            // Закрытие по кнопке с классом modal-close
+            document.querySelectorAll('.modal-close').forEach(function(closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    var modal = this.closest('.modal-overlay');
+                    if (modal) {
+                        modal.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+
+            // Закрытие по клику на фон
+            document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+
+            // Закрытие по Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-overlay.active').forEach(function(modal) {
+                        modal.classList.remove('active');
+                        document.body.style.overflow = '';
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

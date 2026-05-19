@@ -62,10 +62,14 @@ def logout_view(request):
 def profile_view(request):
     if request.user.username == 'Admin26':
         return redirect('admin_panel')
+
     applications = request.user.applications.select_related('course', 'review').all()
-    can_review = applications.filter(status='completed').exclude(
-        review__isnull=False
-    ).exists()
+
+    # Подсчёт статистики
+    total_apps = applications.count()
+    completed_apps = applications.filter(status='completed').count()
+    in_progress_apps = applications.filter(status='in_progress').count()
+    new_apps = applications.filter(status='new').count()
 
     if request.method == 'POST' and 'review_text' in request.POST:
         app_id = request.POST.get('application_id')
@@ -84,7 +88,10 @@ def profile_view(request):
 
     return render(request, 'main/profile.html', {
         'applications': applications,
-        'can_review': can_review,
+        'total_apps': total_apps,
+        'completed_apps': completed_apps,
+        'in_progress_apps': in_progress_apps,
+        'new_apps': new_apps,
     })
 
 
@@ -92,15 +99,28 @@ def profile_view(request):
 def apply_view(request):
     if request.user.username == 'Admin26':
         return redirect('admin_panel')
+
     form = ApplicationForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         app = form.save(commit=False)
         app.user = request.user
+
+        # Дополнительная проверка даты на сервере
+        from datetime import date
+        if app.start_date < date.today():
+            form.add_error('start_date', 'Дата начала не может быть раньше сегодняшнего дня')
+            return render(request, 'main/apply.html', {'form': form})
+
         app.save()
         messages.success(request, 'Заявка отправлена на согласование')
         return redirect('profile')
-    return render(request, 'main/apply.html', {'form': form})
 
+    # Передаём сегодняшнюю дату в шаблон
+    from datetime import date
+    return render(request, 'main/apply.html', {
+        'form': form,
+        'today': date.today().isoformat()
+    })
 
 @login_required
 def admin_panel_view(request):

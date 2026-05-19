@@ -102,68 +102,118 @@ function initSlider(track) {
         track.style.transform = 'translateX(-' + (current * 100) + '%)';
 
         if (dotsContainer) {
-            dotsContainer.querySelectorAll('.slider-dot').forEach(function(d, i) {
-                d.classList.toggle('active', i === current);
-            });
+            var dots = dotsContainer.querySelectorAll('.slider-dot');
+            for (var i = 0; i < dots.length; i++) {
+                dots[i].classList.toggle('active', i === current);
+            }
         }
 
         resetProgress();
     }
 
-    function nextSlide() { goTo(current + 1); }
-    function prevSlide() { goTo(current - 1); }
+    function nextSlide() {
+        if (isAnimating) return;
+        goTo(current + 1);
+    }
+
+    function prevSlide() {
+        if (isAnimating) return;
+        goTo(current - 1);
+    }
 
     function startProgress() {
-        stopProgress();
+        if (progressTimer) clearTimeout(progressTimer);
         if (!progressBar) return;
         progressBar.style.transition = 'none';
         progressBar.style.width = '0%';
-        requestAnimationFrame(function() {
+        setTimeout(function() {
             progressBar.style.transition = 'width ' + INTERVAL_MS + 'ms linear';
             progressBar.style.width = '100%';
-        });
+        }, 10);
     }
 
-    function stopProgress() {
-        if (progressBar) {
-            var computed = window.getComputedStyle(progressBar);
-            progressBar.style.transition = 'none';
-            progressBar.style.width = computed.width;
+    function resetProgress() {
+        if (!progressBar) return;
+        progressBar.style.transition = 'none';
+        progressBar.style.width = '0%';
+        if (interval) {
+            setTimeout(function() {
+                if (progressBar) {
+                    progressBar.style.transition = 'width ' + INTERVAL_MS + 'ms linear';
+                    progressBar.style.width = '100%';
+                }
+            }, 10);
         }
     }
 
     function startAuto() {
-        stopAuto();
-        interval = setInterval(nextSlide, INTERVAL_MS);
-        startProgress();
-    }
+        if (interval) clearInterval(interval);
+        if (progressTimer) clearTimeout(progressTimer);
 
-    function stopAuto() {
-        if (interval) { clearInterval(interval); interval = null; }
-        stopProgress();
+        if (!progressBar) {
+            interval = setInterval(function() {
+                nextSlide();
+            }, INTERVAL_MS);
+        } else {
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '0%';
+            setTimeout(function() {
+                progressBar.style.transition = 'width ' + INTERVAL_MS + 'ms linear';
+                progressBar.style.width = '100%';
+            }, 10);
+
+            interval = setInterval(function() {
+                if (!isAnimating) {
+                    nextSlide();
+                    progressBar.style.transition = 'none';
+                    progressBar.style.width = '0%';
+                    setTimeout(function() {
+                        if (progressBar) {
+                            progressBar.style.transition = 'width ' + INTERVAL_MS + 'ms linear';
+                            progressBar.style.width = '100%';
+                        }
+                    }, 10);
+                }
+            }, INTERVAL_MS);
+        }
     }
 
     if (dotsContainer) {
         dotsContainer.innerHTML = '';
-        slides.forEach(function(_, i) {
+        for (var i = 0; i < total; i++) {
             var dot = document.createElement('button');
             dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
             dot.type = 'button';
             dot.setAttribute('aria-label', 'Слайд ' + (i + 1));
-            dot.addEventListener('click', function() { goTo(i); startAuto(); });
+            dot.addEventListener('click', (function(index) {
+                return function() {
+                    goTo(index);
+                    startAuto();
+                };
+            })(i));
             dotsContainer.appendChild(dot);
+        }
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            prevSlide();
+            startAuto();
         });
     }
 
-    if (prevBtn) prevBtn.addEventListener('click', function() { prevSlide(); startAuto(); });
-    if (nextBtn) nextBtn.addEventListener('click', function() { nextSlide(); startAuto(); });
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            nextSlide();
+            startAuto();
+        });
+    }
 
     var touchStartX = 0;
     var touchEndX = 0;
 
     container.addEventListener('touchstart', function(e) {
         touchStartX = e.changedTouches[0].screenX;
-        stopAuto();
     }, { passive: true });
 
     container.addEventListener('touchend', function(e) {
