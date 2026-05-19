@@ -5,46 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Учусь.РФ{% endblock %}</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
     <div class="page-wrapper">
         <header class="header">
             <div class="container">
-                <a href="/" class="header-logo">
-                    <img src="/static/assets/20220922_logo.jpg" alt="Учусь.РФ">
-                    Учусь.РФ
-                </a>
-                <div class="header-nav">
+                <div class="header-inner">
+                    <a href="/" class="header-logo">
+                        <img src="/static/assets/20220922_logo.jpg" alt="" onerror="this.style.display='none'">
+                        <span>Учусь.РФ</span>
+                    </a>
                     {% if user.is_authenticated %}
+                    <nav class="header-nav">
                         {% if user.username != 'Admin26' %}
-                            <a href="{% url 'profile' %}">Личный кабинет</a>
-                            <a href="{% url 'apply' %}">Новая заявка</a>
+                            <a href="{% url 'profile' %}">Кабинет</a>
+                            <a href="{% url 'apply' %}">Заявка</a>
                         {% else %}
-                            <a href="{% url 'admin_panel' %}">Панель управления</a>
+                            <a href="{% url 'admin_panel' %}">Админка</a>
                         {% endif %}
-                        <a href="{% url 'logout' %}">Выйти</a>
+                        <a href="{% url 'logout' %}">Выход</a>
+                    </nav>
                     {% endif %}
                 </div>
             </div>
         </header>
 
-        <main class="content-section">
+        <section class="content-section">
             <div class="container">
                 {% if messages %}
                     {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        <div class="alert alert-{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}">
+                            {{ message }}
+                        </div>
                     {% endfor %}
                 {% endif %}
                 {% block content %}{% endblock %}
             </div>
-        </main>
+        </section>
 
         <footer class="footer">
             <div class="container">
-                <p>Учусь.РФ &mdash; информационная система для записи на онлайн курсы</p>
+                <div class="footer-content">
+                    <p>Учусь.РФ &mdash; портал дистанционного обучения</p>
+                    <div class="footer-links">
+                        <a href="#">О портале</a>
+                        <a href="#">Контакты</a>
+                        <a href="#">Помощь</a>
+                    </div>
+                </div>
             </div>
         </footer>
     </div>
     <script src="/static/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

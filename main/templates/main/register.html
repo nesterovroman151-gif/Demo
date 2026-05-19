@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Регистрация — Учусь.РФ{% endblock %}
 {% block content %}
-<div class="auth-page" style="margin: -32px -16px; min-height: calc(100vh - 140px);">
+<div class="auth-page">
     <div class="auth-card fade-in">
         <h1>Регистрация</h1>
         <p class="subtitle">Создайте аккаунт для записи на курсы</p>
@@ -23,7 +23,7 @@
                     <div class="alert alert-error">{{ error }}</div>
                 {% endfor %}
             {% endif %}
-            <button type="submit" class="btn btn-primary" style="width:100%">Зарегистрироваться</button>
+            <button type="submit" class="btn btn-primary btn-block">Зарегистрироваться</button>
         </form>
         <div class="auth-link">
             Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a>

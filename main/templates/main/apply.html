@@ -2,9 +2,14 @@
 {% block title %}Новая заявка — Учусь.РФ{% endblock %}
 {% block content %}
 <div style="max-width:560px;margin:0 auto">
+    <div class="section-header">
+        <div>
+            <h2>Оформление заявки</h2>
+            <p class="small-text" style="margin-top:4px;color:#6c757d">Выберите курс и удобную дату старта</p>
+        </div>
+    </div>
+
     <div class="card fade-in">
-        <h2 style="margin-bottom:8px">Оформление заявки</h2>
-        <p style="margin-bottom:24px;opacity:0.7;font-size:14px">Выберите курс и укажите предпочтительное время старта</p>
         <form method="post" novalidate>
             {% csrf_token %}
             {% for field in form %}
@@ -16,12 +21,9 @@
                         <span class="error-text">{{ error }}</span>
                     {% endfor %}
                 {% endif %}
-                {% if field.help_text %}
-                    <span class="small-text" style="margin-top:4px;display:block;opacity:0.6">{{ field.help_text }}</span>
-                {% endif %}
             </div>
             {% endfor %}
-            <button type="submit" class="btn btn-primary" style="width:100%">Отправить заявку</button>
+            <button type="submit" class="btn btn-primary btn-block">Отправить заявку</button>
         </form>
     </div>
 </div>
