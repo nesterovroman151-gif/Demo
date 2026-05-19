@@ -1,30 +1,33 @@
 {% extends 'base.html' %}
 {% block title %}Новая заявка — Учусь.РФ{% endblock %}
 {% block content %}
-<div style="max-width:560px;margin:0 auto">
-    <div class="section-header">
-        <div>
-            <h2>Оформление заявки</h2>
-            <p class="small-text" style="margin-top:4px;color:#6c757d">Выберите курс и удобную дату старта</p>
-        </div>
-    </div>
-
-    <div class="card fade-in">
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {% for field in form %}
-            <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    {% for error in field.errors %}
-                        <span class="error-text">{{ error }}</span>
-                    {% endfor %}
-                {% endif %}
+<div style="position:relative;max-width:560px;margin:0 auto">
+    <div class="apply-bg" style="position:absolute;top:0;left:0;right:0;bottom:0;background:url('/static/assets/Приглашение_на_курсы.jpg') center/cover no-repeat;opacity:0.08;pointer-events:none;border-radius:16px;"></div>
+    <div style="max-width:560px;margin:0 auto;position:relative">
+        <div class="section-header">
+            <div>
+                <h2>Оформление заявки</h2>
+                <p class="small-text" style="margin-top:4px;color:#6c757d">Выберите курс и удобную дату старта</p>
             </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary btn-block">Отправить заявку</button>
-        </form>
+        </div>
+
+        <div class="card fade-in">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <span class="error-text">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary btn-block">Отправить заявку</button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

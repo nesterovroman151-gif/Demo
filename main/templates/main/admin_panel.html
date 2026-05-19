@@ -1,15 +1,18 @@
 {% extends 'base.html' %}
 {% block title %}Админ-панель — Учусь.РФ{% endblock %}
 {% block content %}
-<div class="section-header">
-    <div>
-        <h2>Панель управления</h2>
-        <p class="small-text" style="margin-top:4px;color:#6c757d">Управление заявками пользователей</p>
-    </div>
-    <div class="status-summary" style="display:flex;gap:16px;">
-        <div style="background:#e3f0ff;padding:10px 16px;border-radius:8px;text-align:center;min-width:80px;">
-            <div style="font-size:22px;font-weight:700;color:#1a5276;">{{ page_obj.paginator.count }}</div>
-            <div style="font-size:11px;color:#1a5276;text-transform:uppercase;letter-spacing:0.5px;">Всего</div>
+<div style="position:relative">
+    <div class="admin-bg" style="position:absolute;top:0;left:0;right:0;bottom:0;background:url('/static/assets/2fa84186f893bd1de6c7346353037de9.jpg') center/cover no-repeat;opacity:0.06;pointer-events:none;border-radius:0 0 0 0;"></div>
+    <div class="section-header" style="position:relative">
+        <div>
+            <h2>Панель управления</h2>
+            <p class="small-text" style="margin-top:4px;color:#6c757d">Управление заявками пользователей</p>
+        </div>
+        <div class="status-summary" style="display:flex;gap:16px;">
+            <div style="background:#e3f0ff;padding:10px 16px;border-radius:8px;text-align:center;min-width:80px;">
+                <div style="font-size:22px;font-weight:700;color:#1a5276;">{{ page_obj.paginator.count }}</div>
+                <div style="font-size:11px;color:#1a5276;text-transform:uppercase;letter-spacing:0.5px;">Всего</div>
+            </div>
         </div>
     </div>
 </div>
@@ -122,9 +125,12 @@
     {% endfor %}
 {% else %}
     <div class="empty-state">
-        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-        </svg>
+        <div style="position:relative;height:200px;display:flex;align-items:center;justify-content:center">
+            <div class="empty-state-bg" style="position:absolute;top:0;left:0;right:0;bottom:0;background:url('/static/assets/6410690722451365045.jpg') center/contain no-repeat;opacity:0.2;pointer-events:none;"></div>
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 16px;display:block;width:48px;height:48px">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+        </div>
         <p>Заявки не найдены</p>
     </div>
 {% endif %}
